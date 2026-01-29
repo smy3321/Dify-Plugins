@@ -148,7 +148,7 @@ class ReActAgentStrategy(AgentStrategy):
                     type=ToolParameter.ToolParameterType.ARRAY,
                     form=ToolParameter.ToolParameterForm.LLM,
                     required=True,
-                    llm_description="A list of 2-5 concrete, actionable execution steps. Ensure each step is valuable for achieving the goal. Exclude final response or summary steps."
+                    llm_description="A list of 2-5 concrete, actionable execution steps. The value MUST be a valid JSON list of strings (e.g. [\"step 1\", \"step 2\"]). Ensure each step is valuable for achieving the goal. Exclude final response or summary steps."
                 )
             ]
         )
@@ -429,10 +429,17 @@ class ReActAgentStrategy(AgentStrategy):
         处理记忆压缩。
         """
         self.compressed_summary = summary
-        agent_scratchpad.clear()
+        
+        # 保留当前正在进行的这一步（包含 memory_compression_tool 的调用），清除之前的历史
+        # 这样模型能看到自己刚刚执行了压缩操作，避免重复执行
+        if agent_scratchpad:
+            current_step = agent_scratchpad[-1]
+            agent_scratchpad.clear()
+            agent_scratchpad.append(current_step)
+            
         return "Memory compressed successfully. Previous scratchpad has been replaced by this summary."
 
-    def _get_dynamic_system_prompt(self, tools: list[ToolEntity]) -> SystemPromptMessage:
+    def _get_dynamic_system_prompt(self, tools: list[ToolEntity], agent_scratchpad: list[AgentScratchpadUnit] | None = None) -> SystemPromptMessage:
         """
         根据当前状态和可用工具生成动态系统提示词。
         """
@@ -444,7 +451,8 @@ class ReActAgentStrategy(AgentStrategy):
         )
         
         # 核心指令
-        instruction = "Respond to the human as helpfully and accurately as possible. All your thoughts and final answers MUST be in Chinese.\n\n"
+        instruction = "Respond to the human as helpfully and accurately as possible. All your thoughts and final answers MUST be in Chinese.\n"
+        instruction += "Keep your 'Thought' concise, insightful. Avoid lengthy and verbose explanations.\n\n"
         instruction += self.instruction
         
         # 注入计划信息
@@ -468,9 +476,12 @@ class ReActAgentStrategy(AgentStrategy):
         if self.workflow_state == AgentWorkflowState.START:
             instruction += "\n\nGUIDANCE: You are at the beginning. You MUST use 'plan_generation_tool' to create a 2-5 steps high-quality, executable plan first. Focus on concrete actions that lead to the solution.\n"
             instruction += "NOTE: All other available tools listed below are for your REFERENCE ONLY to help you design a better plan. You are PROHIBITED from calling any tools other than 'plan_generation_tool' in this stage. \n"
-            instruction += "However, if the task is extremely straightforward and requires no planning, you may skip creating a plan and directly provide the FinalAnswer."
+            instruction += "However, if the task is simple, direct, or unclear, you can skip the initial plan generation and directly output the Final Answer."
         elif self.workflow_state == AgentWorkflowState.EXECUTING:
-            instruction += "\n\nGUIDANCE: Focus on the CURRENT STEP. You can use any available tools. Proactively use 'plan_batch_update_tool' to refine or optimize the remaining steps if you discover a better way. Once the current step is fully completed, you MUST use 'plan_completion_tool' first to move to the next step. \n"
+            instruction += "\n\nGUIDANCE: Focus on the CURRENT STEP. You can use any available tools.\n"
+            instruction += "FLEXIBILITY: You are allowed to deviate from the current plan step if it is unreasonable or suboptimal based on the latest information. Just perform the most correct action required. After the actual work is done, use 'plan_completion_tool' to mark the step as completed.\n"
+            instruction += "ADAPTABILITY: You can use 'plan_batch_update_tool' proactively to update, add, or delete future steps to better suit the task requirements as you proceed.\n"
+            instruction += "Once the current step is fully completed, you MUST use 'plan_completion_tool' first to move to the next step. \n"
             instruction += "CRITICAL: Perform the 'plan_completion_tool' call SILENTLY. Your 'Thought' must NOT contain any words about completing the task or calling the tool. Just output the task-related thoughts and then the tool call."
         elif self.workflow_state == AgentWorkflowState.FINISHED:
             instruction += "\n\nGUIDANCE: All plans are completed. Based on the previous observations, provide your FinalAnswer to the user."
@@ -479,11 +490,21 @@ class ReActAgentStrategy(AgentStrategy):
         if self.compressed_summary:
             instruction += f"\n\n### Memory Note\nPrevious detailed reasoning has been compressed: {self.compressed_summary}\n"
 
+        # 检查历史记录长度并建议压缩
+        if agent_scratchpad:
+            scratchpad_length = sum(len(unit.thought or "") + len(unit.action_str or "") + len(unit.observation or "") for unit in agent_scratchpad)
+            if scratchpad_length > 100000:
+                instruction += "\n\n### Memory Optimization Advice\n"
+                instruction += "The current conversation context is becoming very long (>100k chars).\n"
+                instruction += "You are STRONGLY ADVISED to use 'memory_compression_tool' NOW to abstract the valuable information in the history and compress the context.\n"
+
          # 工具调用规则
-        if self.workflow_state!=AgentWorkflowState.FINISHED:
+        if self.workflow_state != AgentWorkflowState.FINISHED:
             instruction += "\n\n### Tool Usage Rules\n"
             instruction += "- Use a json blob to specify a tool call with 'action' and 'action_input' keys.\n"
-            if self.workflow_state==AgentWorkflowState.EXECUTING:
+            instruction += "- CRITICAL: You MUST use the following exact format for tool calls. Do not forget the 'Action:' prefix!\n"
+            instruction += "Action:\n{\n  \"action\": \"$TOOL_NAME\",\n  \"action_input\": $INPUT\n}\n"
+            if self.workflow_state == AgentWorkflowState.EXECUTING:
                 instruction += "- You may call multiple tools in one turn by repeating the 'Action: $JSON_BLOB' pattern; this allows invoking the same tool with different parameters or several distinct tools in a single response to improve efficiency.\n"
                 instruction += f"- Valid 'action' values: {', '.join([t.name for t in tools])}\n"
 
@@ -986,7 +1007,7 @@ class ReActAgentStrategy(AgentStrategy):
             current_tools = self._prompt_messages_tools
         
         # 1. 系统提示词：包含动态状态指导和计划看板
-        system_message = self._get_dynamic_system_prompt(current_tools)
+        system_message = self._get_dynamic_system_prompt(current_tools, agent_scratchpad)
 
         # 2. 处理 Scratchpad (之前的思考与行动记录)
         # 将当前轮之前的 Thought/Action/Observation 串联为一条 Assistant 消息

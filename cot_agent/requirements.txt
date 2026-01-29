@@ -1,1 +1,3 @@
+--no-index --find-links=./wheels/
+--no-index --find-links=./wheels/
 dify_plugin~=0.7.1

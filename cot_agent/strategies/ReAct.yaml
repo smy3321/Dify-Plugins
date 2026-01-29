@@ -1,14 +1,14 @@
 identity:
-  name: ReAct
+  name: Scheduled_ReAct
   author: Dify
   label:
-    en_US: ReAct
-    zh_Hans: ReAct
-    pt_BR: ReAct
+    en_US: Scheduled ReAct
+    zh_Hans: 计划 ReAct
+    pt_BR: Scheduled ReAct
 description:
-  en_US: ReAct is a basic strategy for agent, model will use the tools provided to perform the task.
-  zh_Hans: ReAct 是一个基本的 Agent 策略，模型将使用提供的工具来执行任务。
-  pt_BR: ReAct is a basic strategy for agent, model will use the tools provided to perform the task.
+  en_US: Scheduled ReAct is a basic strategy for agent, model will use the tools provided to perform the task.
+  zh_Hans: 基于计划的 ReAct 是一个基本的 Agent 策略，模型将使用提供的工具来执行任务。
+  pt_BR: Scheduled ReAct is a basic strategy for agent, model will use the tools provided to perform the task.  
 features:
   - history-messages
 parameters:

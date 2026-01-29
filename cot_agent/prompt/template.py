@@ -3,12 +3,21 @@ ENGLISH_REACT_COMPLETION_PROMPT_TEMPLATES = """{{instruction}}
 You have access to the following tools:
 {{tools}}
 
-Your outpur should follow this format:
-Thought: consider previous and subsequent steps
-Action: $JSON_BLOB
-Action: $JSON_BLOB (Optional if you have multiple actions) 
+Your output should follow this format:
+Thought: briefly plan the next step. DO NOT summarize previous information or observations unless necessary for the immediate next step.
+Action:
+{
+  "action": "$TOOL_NAME",
+  "action_input": $INPUT
+}
+Action:
+{
+  "action": "$TOOL_NAME",
+  "action_input": $INPUT
+}
+(Optional if you have multiple actions)
 ... (repeat Thought/Action N times)
-Thought: I know what to respond
+Thought: brief reason about the final answer
 FinalAnswer: final response to human
 
 Begin!
@@ -27,11 +36,21 @@ You have access to the following tools:
 {{tools}}
 
 Your outpur should follow this format:
-Thought: consider previous and subsequent steps
-Action: $JSON_BLOB
-Action: $JSON_BLOB (Optional if you have multiple actions) 
+Thought: briefly plan the next step. DO NOT summarize previous information or observations unless necessary for the immediate next step.
+Action:
+{
+  "action": "$TOOL_NAME",
+  "action_input": $INPUT
+}
+
+Action:
+{
+  "action": "$TOOL_NAME",
+  "action_input": $INPUT
+}
+(Optional if you have multiple actions)
 ... (repeat Thought/Action N times)
-Thought: I know what to respond
+Thought: brief reason about the final answer
 FinalAnswer: final response to human
 
 Begin!

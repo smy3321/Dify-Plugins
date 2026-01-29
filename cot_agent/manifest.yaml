@@ -1,0 +1,35 @@
+version: 0.0.1
+type: plugin
+author: "shenmingyu"
+name: "smy-agent"
+label:
+  en_US: "SMY Agent Strategies"
+  zh_Hans: "SMY Agent 策略"
+created_at: "2026-01-26T15:22:00.000000000Z"
+icon: icon.svg
+description:
+  en_US: SMY's Agent strategies collection
+  zh_Hans: 沈铭宇测试 Agent 策略
+tags:
+  - "agent"
+resource:
+  memory: 1048576
+  permission:
+    tool:
+      enabled: true
+    model:
+      enabled: true
+      llm: true
+plugins:
+  agent_strategies:
+    - "provider/agent.yaml"
+meta:
+  version: 0.0.1
+  minimum_dify_version: "1.7.0"
+  arch:
+    - "amd64"
+    - "arm64"
+  runner:
+    language: "python"
+    version: "3.12"
+    entrypoint: "main"

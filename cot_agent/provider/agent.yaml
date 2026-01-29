@@ -1,0 +1,18 @@
+identity:
+  author: shenmingyu
+  name: smy-agent
+  label:
+    en_US: SMY Agent
+    zh_Hans: SMY Agent
+    pt_BR: Agent
+  description:
+    en_US: SMY's Agent
+    zh_Hans: 沈铭宇测试 Agent
+    pt_BR: Agent
+  icon: icon.svg
+strategies:
+  # - strategies/function_calling.yaml
+  - strategies/ReAct.yaml
+extra:
+  python:
+    source: provider/agent.py

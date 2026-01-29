@@ -1,0 +1,34 @@
+identity:
+  name: "hello-world2"
+  author: "smy"
+  label:
+    en_US: "hello-world2"
+    zh_Hans: "hello-world2"
+    pt_BR: "hello-world2"
+    ja_JP: "hello-world2"
+description:
+  human:
+    en_US: "test"
+    zh_Hans: "test"
+    pt_BR: "test"
+    ja_JP: "test"
+  llm: "test"
+parameters:
+  - name: url
+    type: string
+    required: true
+    label:
+      en_US: URL
+      zh_Hans: 地址
+      pt_BR: URL
+      ja_JP: URL
+    human_description:
+      en_US: "url"
+      zh_Hans: "地址"
+      pt_BR: "url"
+      ja_JP: "url"
+    llm_description: "url"
+    form: llm
+extra:
+  python:
+    source: tools/hello-world2.py

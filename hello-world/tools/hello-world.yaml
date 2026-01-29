@@ -1,0 +1,34 @@
+identity:
+  name: "hello-world"
+  author: "smy"
+  label:
+    en_US: "hello-world"
+    zh_Hans: "hello-world"
+    pt_BR: "hello-world"
+    ja_JP: "hello-world"
+description:
+  human:
+    en_US: "test"
+    zh_Hans: "test"
+    pt_BR: "test"
+    ja_JP: "test"
+  llm: "test"
+parameters:
+  - name: query2
+    type: string
+    required: true
+    label:
+      en_US: Query string
+      zh_Hans: 查询语句2
+      pt_BR: Query string
+      ja_JP: クエリ文字列
+    human_description:
+      en_US: "test"
+      zh_Hans: "test2"
+      pt_BR: "test"
+      ja_JP: "test"
+    llm_description: "test"
+    form: llm
+extra:
+  python:
+    source: tools/hello-world.py

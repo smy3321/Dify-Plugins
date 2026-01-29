@@ -1,0 +1,89 @@
+identity:
+  author: "shenmingyu"
+  name: "smy-test_plugin"
+  label:
+    en_US: "hello-world"
+    zh_Hans: "hello-world"
+    pt_BR: "hello-world"
+    ja_JP: "hello-world"
+  description:
+    en_US: "test"
+    zh_Hans: "test"
+    pt_BR: "test"
+    ja_JP: "test"
+  icon: "icon.svg"
+
+#########################################################################################
+# If you want to support OAuth, you can uncomment the following code.
+#########################################################################################
+# oauth_schema:
+#   client_schema:
+#     - name: "client_id"
+#       type: "secret-input"
+#       required: true
+#       url: https://example.com/oauth/authorize
+#       placeholder:
+#         en_US: "Please input your Client ID"
+#         zh_Hans: "请输入你的 Client ID"
+#         pt_BR: "Insira seu Client ID"
+#       help:
+#         en_US: "Client ID is used to authenticate requests to the example.com API."
+#         zh_Hans: "Client ID 用于认证请求到 example.com API。"
+#         pt_BR: "Client ID é usado para autenticar solicitações à API do example.com."
+#       label:
+#         zh_Hans: "Client ID"
+#         en_US: "Client ID"
+#     - name: "client_secret"
+#       type: "secret-input"
+#       required: true
+#       url: https://example.com/oauth/authorize
+#       placeholder:
+#         en_US: "Please input your Client Secret"
+#         zh_Hans: "请输入你的 Client Secret"
+#         pt_BR: "Insira seu Client Secret"
+#       help:
+#         en_US: "Client Secret is used to authenticate requests to the example.com API."
+#         zh_Hans: "Client Secret 用于认证请求到 example.com API。"
+#         pt_BR: "Client Secret é usado para autenticar solicitações à API do example.com."
+#       label:
+#         zh_Hans: "Client Secret"
+#         en_US: "Client Secret"
+#   credentials_schema:
+#     - name: "access_token"
+#       type: "secret-input"
+#       label:
+#         zh_Hans: "Access Token"
+#         en_US: "Access Token"
+credentials_for_provider: #Add credentials_for_provider field
+    key1:
+        type: secret-input
+        required: true
+        label:
+            en_US: key1
+            zh_Hans: key1
+        placeholder:
+            en_US: Please input your key1
+            zh_Hans: Please enter your key1
+        help:
+            en_US: Get your key1 from smy
+            zh_Hans: Get your key1 from smy
+        url: https://www.baidu.com
+    key2:
+        type: secret-input
+        required: true
+        label:
+            en_US: key2
+            zh_Hans: key2
+        placeholder:
+            en_US: Please input your key2
+            zh_Hans: Please enter your key2
+        help:
+            en_US: Get your key2 from smy
+            zh_Hans: Get your key2 from smy
+        url: https://www.baidu.com
+tools:
+  - tools/hello-world.yaml
+  - tools/hello-world2.yaml
+extra:
+  python:
+    source: provider/hello-world.py
